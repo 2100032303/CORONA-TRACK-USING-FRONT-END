@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COVID-19 Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
+    <style>
+        body {
+            background-image:url('https://aibg.fineshare.com/52b30445-fcd2-4730-ba8f-083e946f6de9_thumbnail.png?AWSAccessKeyId=AKIA42U4WYMFEWU6HYC7&Expires=1713941603&Signature=l43I2RtSLQ55R9v8mMdrHKZX7u0%3D') ;
+            background-size: cover;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 85%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        canvas {
+            margin-top: 10px;
+        }
+
+        .orange:hover {
+            background-color: orange;
+        }
+
+        .red:hover {
+            background-color: red;
+        }
+
+        .green:hover {
+            background-color: green;
+        }
+
+        .yellow:hover {
+            background-color: yellow;
+        }
+         #getBackBtn {
+            background-color:lightgreen;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px; /* Adjust as needed */
+            cursor: pointer;
+        }
+
+        #getBackBtn:hover {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <h2>COVID-19 Data</h2>
+    <input type="text" id="datepicker" />
+    <button id="detailBtn" onclick="refreshData()" disabled>Detail</button>
+    <br/>
+     <center><button id="getBackBtn" onclick="window.location.href='http://localhost:3000/'">Back</button>
+     </center><br/>
+     <br/>
+    <table id="covidTable">
+        <thead>
+            <tr>
+                <th>State</th>
+                <th class="orange">Cases</th>
+                <th class="green">Cured</th>
+                <th class="red">Deaths</th>
+                <th class="yellow">Vaccinated</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be dynamically generated here -->
+        </tbody>
+    </table>
+    <h2>THE GRAPHICAL REPRESENTATION OF COVID STATE-WISE</h2>
+    <canvas id="barChart" width="400" height="400"></canvas>
+    <h2>THE PIE-CHART REPRESENTATION OF COVID STATE-WISE</h2>
+    <canvas id="pieChart" width="400" height="400"></canvas>
+    <canvas id="histogram" width="400" height="400"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
+    <script>
+        let selectedDate = null;
+
+        // Function to generate random integer within a range
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Function to generate random color
+        function getRandomColor() {
+            return `rgba(${getRandomInt(0, 255)}, ${getRandomInt(0, 255)}, ${getRandomInt(0, 255)}, 0.2)`;
+        }
+
+        // Function to generate random data for Indian states
+        function generateData() {
+            const states = ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"];
+            const data = [];
+            const barColors = [];
+            states.forEach(state => {
+                const cases = getRandomInt(5000, 10000);
+                const cured = getRandomInt(4000, 7000);
+                const deaths = getRandomInt(2000, 4000);
+                const vaccinated = getRandomInt(6000, 8000);
+                data.push({ state, cases, cured, deaths, vaccinated });
+                barColors.push(getRandomColor());
+            });
+            return { data, barColors };
+        }
+
+        // Function to update table with new data
+        function updateTable(data) {
+            const tableBody = document.querySelector('#covidTable tbody');
+            tableBody.innerHTML = '';
+            data.forEach(item => {
+                const row = `<tr>
+                                <td>${item.state}</td>
+                                <td class="orange">${item.cases}</td>
+                                <td class="green">${item.cured}</td>
+                                <td class="red">${item.deaths}</td>
+                                <td class="yellow">${item.vaccinated}</td>
+                            </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // Function to update charts with new data
+        function updateCharts(data, barColors) {
+            const labels = data.map(item => item.state);
+            const casesData = data.map(item => item.cases);
+            const vaccinatedData = data.map(item => item.vaccinated);
+            const deathsData = data.map(item => item.deaths);
+
+            // Update Bar Chart
+            barChart.data.labels = labels;
+            barChart.data.datasets[0].data = casesData;
+            barChart.data.datasets[0].backgroundColor = barColors;
+            barChart.update();
+
+            // Update Pie Chart
+            pieChart.data.labels = labels;
+            pieChart.data.datasets[0].data = vaccinatedData;
+            pieChart.data.datasets[0].backgroundColor = barColors;
+            pieChart.update();
+
+            // Update Histogram
+            histogram.data.labels = labels;
+            histogram.data.datasets[0].data = deathsData;
+            histogram.update();
+        }
+
+        // Function to refresh data
+        function refreshData() {
+            if (selectedDate) {
+                const { data, barColors } = generateData();
+                updateTable(data);
+                updateCharts(data, barColors);
+            } else {
+                alert("Please select a date first.");
+            }
+        }
+
+        // Initialize Pikaday datepicker with today's date
+        var picker = new Pikaday({
+            field: document.getElementById('datepicker'),
+            format: 'YYYY-MM-DD',
+            onSelect: function(date) {
+                selectedDate = date;
+                document.getElementById('detailBtn').disabled = false;
+            }
+        });
+
+        // Generate Bar Chart
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        const barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Cases',
+                    data: [],
+                    backgroundColor: [],
+                    borderColor: [],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+        // Generate Pie Chart
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        const pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Vaccinated',
+                    data: [],
+                    backgroundColor: [],
+                    borderColor: [],
+                    borderWidth: 1
+                }]
+            }
+        });
+
+        // Generate Histogram
+        const ctxHistogram = document.getElementById('histogram').getContext('2d');
+        const histogram = new Chart(ctxHistogram, {
+            type: 'horizontalBar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Deaths',
+                    data: [],
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+*{
+  box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
+}
+
+body {
+  background-image: url('https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.dreamstime.com%2Fmedicine-healthcare-background-public-health-med-illustration-generative-ai-image270920510&psig=AOvVaw0bS-f_44vdnzbaVY2RTFoI&ust=1711733442976000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCLCA34--l4UDFQAAAAAdAAAAABAE');
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+
+/* .container{
+  display:flex;
+  flex-direction: row;
+  justify-content: center;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 100px;
+  margin-bottom: 5px;
+  
+} */
+
+
+
+img{
+  height: 90px;
+  border-radius: 80%;
+  background: transparent;
+  animation: rotation 3s infinite linear;
+}
+
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+/* 
+.heading{
+  position: absolute;
+  font-size: 60px;
+  top: 5px;
+  left: 38%;
+  text-transform: capitalize;
+} */
